@@ -35,6 +35,19 @@ class LogicFormula:
         print("ТДНФ(табличный метод):", self.__sdnf_deadlock_tabular)
         print("ТКНФ(табличный метод):", self.__sknf_deadlock_tabular)
 
+    def __is_constant_function(self, name):
+        if name == "sdnf":
+            value = 1
+        else:
+            value = 0
+        flag = True
+        for i in range(len(VALUES)):
+            if self.__table[i].result != value:
+                flag = False
+                break
+        if flag:
+            return value
+
     def __create_sknf(self) -> str:
         sknf = ''
         for i in range(len(VALUES)):
@@ -196,6 +209,8 @@ class LogicFormula:
             return True
 
     def calculated_deadlock(self, name):
+        if self.__is_constant_function(name):
+            return self.__is_constant_function(name)
         if name == "sdnf":
             sign = '+'
             short_form = self.__sdnf_short_form
@@ -219,6 +234,8 @@ class LogicFormula:
         return terms
 
     def deadlock_calculated_tabular(self, name):
+        if self.__is_constant_function(name):
+            return self.__is_constant_function(name)
         if name == "sdnf":
             sign = '+'
             short_form = self.__sdnf_short_form.split(sign)
@@ -323,6 +340,8 @@ class LogicFormula:
         return areas
 
     def deadlock_tabular(self, name):
+        if self.__is_constant_function(name):
+            return self.__is_constant_function(name)
         if name == "sdnf":
             sign, value = '+', 1
             short_form, create_short_form = self.__sdnf_short_form.split(sign), self.__create_short_sdnf_form

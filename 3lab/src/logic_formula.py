@@ -40,13 +40,12 @@ class LogicFormula:
             value = 1
         else:
             value = 0
-        flag = True
+        constant = True
         for i in range(len(VALUES)):
             if self.__table[i].result != value:
-                flag = False
+                constant = False
                 break
-        if flag:
-            return value
+        return constant
 
     def __create_sknf(self) -> str:
         sknf = ''
@@ -94,26 +93,32 @@ class LogicFormula:
 
     @staticmethod
     def __create_short_logic_table(table) -> list:
-
+        result = []
         if not len(table):
             return []
 
         for i in range(len(table[0])):
             short_logic_table = LogicFormula.__start_glued(table)
             table = LogicFormula.__delete_duplicate(short_logic_table)
-        short_logic_table = table
-        return short_logic_table
+            result = table
+        return LogicFormula.__delete_duplicate(result)
 
     @staticmethod
     def __start_glued(table):
         short_logic_table = []
+        index = []
         for i in range(len(table)):
+            is_not_gluing = False
             for j in range(i+1, len(table)):
                 false_index = LogicFormula.__gluing_of_vectors(table[i], table[j])
                 if false_index >= 0:
+                    is_not_gluing = True
+                    index.append(j)
                     new_vector = table[i].copy()
                     new_vector[false_index] = None
                     short_logic_table.append(new_vector)
+            if not is_not_gluing and i not in index:
+                short_logic_table.append(table[i])
         return short_logic_table if short_logic_table else table
 
     @staticmethod
@@ -182,7 +187,7 @@ class LogicFormula:
             table[col] = dict()
         for col in formula:
             for row in short_form:
-                if LogicFormula.__is_includes(row[1:-1].split(sign), col[1:-1].split(sign)):
+                if LogicFormula.__is_includes(row[1:-1].split(sign), col[1:-1].split(sign)) and len(row[1:-1]) > 2:
                     table[col][row] = 1
                 else:
                     table[col][row] = 0
@@ -195,22 +200,11 @@ class LogicFormula:
             first_vector, second_vector = vector.copy(), vector.copy()
             second_vector[none_index], first_vector[none_index] = 0, 1
             return Table.result(formula, *first_vector) == Table.result(formula, *second_vector)
-        else:
-            values = [(0, 0), (0, 1), (1, 1), (1, 0)]
-            first_vector, second_vector = vector.copy(), vector.copy()
-            first_none_index = vector.index(None)
-            second_none_index = vector.index(None, first_none_index + 1)
-            for i in range(len(values)):
-                for j in range(i + 1, len(values)):
-                    first_vector[first_none_index], first_vector[second_none_index] = values[i][0], values[i][1]
-                    second_vector[first_none_index], second_vector[second_none_index] = values[j][0], values[j][1]
-                    if not Table.result(formula, *first_vector) == Table.result(formula, *second_vector):
-                        return False
-            return True
+        return False
 
     def calculated_deadlock(self, name):
         if self.__is_constant_function(name):
-            return self.__is_constant_function(name)
+            return 1 if name == 'sdnf' else 0
         if name == "sdnf":
             sign = '+'
             short_form = self.__sdnf_short_form
@@ -220,8 +214,8 @@ class LogicFormula:
             short_form = self.__sknf_short_form
             short_logic_table = self.__create_short_logic_table(self.__create_sknf_table())
         terms = short_form.split(sign)
-        if len(terms) == 1:
-            return ''.join(terms)
+        if len(terms) <= 2:
+            return sign.join(terms)
         for i in range(len(short_logic_table)):
             formula = short_form.split(sign)
             formula.pop(i)
@@ -235,7 +229,7 @@ class LogicFormula:
 
     def deadlock_calculated_tabular(self, name):
         if self.__is_constant_function(name):
-            return self.__is_constant_function(name)
+            return 1 if name == 'sdnf' else 0
         if name == "sdnf":
             sign = '+'
             short_form = self.__sdnf_short_form.split(sign)
@@ -247,6 +241,9 @@ class LogicFormula:
         if len(short_form) == 1:
             return ''.join(short_form)
         terms = []
+        for i in short_form:
+            if len(i) <= 4:
+                terms.append(i)
         table = self.__fill_calculated_tabular_table(formula, short_form, sign)
         for term in formula:
             count_of_one = list(table[term].values()).count(1)
@@ -281,6 +278,17 @@ class LogicFormula:
         return True
 
     @staticmethod
+    def __is_extra_area(original_vector, areas):
+        is_includes_count = 0
+        for constituent in original_vector:
+            for area in areas:
+                if constituent in area and area != original_vector:
+                    is_includes_count += 1
+                    break
+        return is_includes_count != len(original_vector)
+
+
+    @staticmethod
     def __checking_signle_area(table, value, areas):
         for constituent in VALUES_A:
             for j in range(len(VALUES_B_C)):
@@ -312,17 +320,17 @@ class LogicFormula:
     @staticmethod
     def __checking_square_area(table, value, areas):
         for j in range(len(VALUES_B_C)):
-            if table[0][VALUES_B_C[0]] == table[0][VALUES_B_C[-1]] == value\
-              and table[1][VALUES_B_C[0]] == table[1][VALUES_B_C[-1]] == value:
-                area = [[0, *VALUES_B_C[0]], [0, *VALUES_B_C[-1]], [1, *VALUES_B_C[0]], [1, *VALUES_B_C[-1]]]
-                if LogicFormula.__is_includes_in_area(area, areas):
-                    areas.append([area])
             if j + 1 < len(VALUES_B_C):
                 if table[0][VALUES_B_C[j + 1]] == table[0][VALUES_B_C[j]] == value\
                   and table[1][VALUES_B_C[j + 1]] == table[1][VALUES_B_C[j]] == value:
                     area = [[0, *VALUES_B_C[j+1]], [0, *VALUES_B_C[j]], [1, *VALUES_B_C[j+1]], [1, *VALUES_B_C[j]]]
                     if LogicFormula.__is_includes_in_area(area, areas):
                         areas.append(area)
+        if table[0][VALUES_B_C[0]] == table[0][VALUES_B_C[-1]] == value \
+                and table[1][VALUES_B_C[0]] == table[1][VALUES_B_C[-1]] == value:
+            area = [[0, *VALUES_B_C[0]], [0, *VALUES_B_C[-1]], [1, *VALUES_B_C[0]], [1, *VALUES_B_C[-1]]]
+            if LogicFormula.__is_includes_in_area(area, areas):
+                areas.append(area)
         return areas
 
     @staticmethod
@@ -333,15 +341,23 @@ class LogicFormula:
                 if table[constituent][VALUES_B_C[j]] != value:
                     is_line = False
                     break
-            temp = [[constituent, *VALUES_B_C[0]], [constituent, *VALUES_B_C[1]],
+            area = [[constituent, *VALUES_B_C[0]], [constituent, *VALUES_B_C[1]],
                     [constituent, *VALUES_B_C[2]], [constituent, *VALUES_B_C[3]]]
-            if is_line and LogicFormula.__is_includes_in_area(temp, areas):
-                areas.append(temp)
+            if is_line and LogicFormula.__is_includes_in_area(area, areas):
+                areas.append(area)
         return areas
+
+    @staticmethod
+    def __minimizing_areas(areas):
+        result = areas.copy()
+        for i in range(len(areas)):
+            if not LogicFormula.__is_extra_area(areas[i], result):
+                result.remove(areas[i])
+        return result
 
     def deadlock_tabular(self, name):
         if self.__is_constant_function(name):
-            return self.__is_constant_function(name)
+            return 1 if name == 'sdnf' else 0
         if name == "sdnf":
             sign, value = '+', 1
             short_form, create_short_form = self.__sdnf_short_form.split(sign), self.__create_short_sdnf_form
@@ -359,6 +375,8 @@ class LogicFormula:
         areas = self.__checking_square_area(table, value, areas)
         areas = self.__checking_line_of_two_area(table, value, areas)
         areas = self.__checking_signle_area(table, value, areas)
+
+        areas = self.__minimizing_areas(areas)
 
         for area in areas:
             result.extend(self.__create_short_logic_table(area))

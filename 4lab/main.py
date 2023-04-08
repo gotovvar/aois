@@ -7,8 +7,8 @@ table_s = create_sknf_table(TABLE_Di)
 short_form_p = get_minimized(table_p, 'sknf')
 short_form_s = get_minimized(table_s, 'sknf')
 
-print("Min S:", deadlock_calculated_tabular(create_sknf(TABLE_Bi1), short_form_p, '*'))
-print("Min P:", deadlock_calculated_tabular(create_sknf(TABLE_Di), short_form_s, '*'))
+print("Min P:", deadlock_calculated_tabular(create_sknf(TABLE_Bi1), short_form_p, '*'))
+print("Min S:", deadlock_calculated_tabular(create_sknf(TABLE_Di), short_form_s, '*'))
 
 table_y1 = create_sdnf_table(TABLE_Y1)
 short_form_y1 = get_minimized(table_y1, 'sdnf')

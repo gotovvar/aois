@@ -4,7 +4,11 @@ from .sdnf_elements import create_short_sdnf_form
 
 def get_minimized(table, name=None):
     short_logic_table = create_short_logic_table(table)
-    return create_short_sknf_form(short_logic_table) if name == 'sknf' else create_short_sdnf_form(short_logic_table)
+    if name == 'sdnf':
+        create_short_form = create_short_sdnf_form
+    else:
+        create_short_form = create_short_sknf_form
+    return create_short_form(short_logic_table)
 
 
 def create_short_logic_table(table) -> list:

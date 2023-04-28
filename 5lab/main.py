@@ -2,15 +2,15 @@ from src import *
 from prettytable import PrettyTable
 
 
-def _make_table():
-    elements = ['a', 'b', 'c', 'd', 'function']
-    fields_names = [element for element in elements]
-    table = PrettyTable(fields_names)
-    for function_value in function_values:
-        row = [x_value for x_value in function_value.arguments.values()]
-        row.append(function_value.value)
+def make_table(table_h):
+    table = PrettyTable()
+    table.field_names = ["a", "b", "c", "d", "function"]
+
+    for row in table_h:
         table.add_row(row)
-    return table
+
+    print(table)
+
 
 def main():
     table_h1 = create_sdnf_table(TABLE_H1)
@@ -24,6 +24,13 @@ def main():
     min_h1 = deadlock_calculated_tabular(create_sdnf(TABLE_H1), short_form_h1, '+')
     min_h2 = deadlock_calculated_tabular(create_sdnf(TABLE_H2), short_form_h2, '+')
     min_h3 = deadlock_calculated_tabular(create_sdnf(TABLE_H3), short_form_h3, '+')
+
+    print("h1:")
+    make_table(TABLE_H1)
+    print("h2:")
+    make_table(TABLE_H2)
+    print("h3:")
+    make_table(TABLE_H3)
 
     print("h1:", create_sdnf(TABLE_H1))
     print("h2:", create_sdnf(TABLE_H2))

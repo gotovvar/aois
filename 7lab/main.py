@@ -67,6 +67,7 @@ def main():
     memory()
 
     while 1:
+        print("--------------------------")
         print("Match Search - press 1")
         print("Sort - press 2")
         print("To exit - press 0")
@@ -74,7 +75,9 @@ def main():
         match choose:
             case "1":
                 word_to_search = int(input("Enter the number: "))
-                print(memory.match_search(word_to_search))
+                print(f"Decimal: {word_to_search}, binary: {memory.to_binary(word_to_search)}")
+                result = memory.match_search(word_to_search)
+                print(f"Match search: decimal {result}, binary {memory.to_binary(result)}")
             case "2":
                 print("1 - greater, 2 - less")
                 x = int(input())

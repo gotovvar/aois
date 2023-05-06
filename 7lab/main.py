@@ -3,9 +3,10 @@ class Memory:
         self.memory = []
 
     def __call__(self):
+        print("Decimal: ")
         for element in self.memory:
             print(self.to_decimal(element.copy()), end=' ')
-        print()
+        print("\nBinary: ")
         for element in self.memory:
             print(element)
 

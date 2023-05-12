@@ -12,12 +12,15 @@ class Memory:
 
     @staticmethod
     def __word_comparison(word_1: list, word_2: list, sort_flag: bool) -> bool:
+        result = {"g": False, "l": False}
         for i in range(len(word_1)):
-            if word_1[i] > word_2[i]:
-                return True if sort_flag else False
-            elif word_1[i] < word_2[i]:
-                return True if not sort_flag else False
-        return False
+            result_g = result["g"] or (word_1[i] == 0 and word_2[i] == 1 and not result["l"])
+            result_l = result["l"] or (word_1[i] == 1 and word_2[i] == 0 and not result["g"])
+            result["g"], result["l"] = result_g, result_l
+        if result["l"]:
+            return sort_flag
+        if result["g"]:
+            return not sort_flag
 
     def sort(self, sort_flag: bool):
         for i in range(len(self.memory)):
